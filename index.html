@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Potato Disease Classifier</title>
+</head>
+<body>
+    <h1>Potato Disease Classifier</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" name="file" id="file-input">
+        <button type="button" onclick="predict()">Predict</button>
+    </form>
+    <div id="result">
+        
+    </div>
+
+    <script>
+        async function predict() {
+            const fileInput = document.getElementById("file-input");
+            const resultDiv = document.getElementById("result");
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                const response = await fetch("http://localhost:3000/predict", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP Error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                const predictedClass = data.predictedClass;
+                const confidence = data.confidence;
+
+                resultDiv.innerHTML = `
+                    <p>Predicted Class: ${predictedClass}</p>
+                    <p>Confidence: ${confidence.toFixed(2)}%</p>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
